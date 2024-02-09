@@ -474,18 +474,39 @@ test("restore with lookup-only set", async () => {
     expect(failedMock).toHaveBeenCalledTimes(0);
 });
 
-test("restore failure with earlyExit should call process exit", async () => {
-    testUtils.setInput(Inputs.Path, "node_modules");
-    const failedMock = jest.spyOn(core, "setFailed");
-    const restoreCacheMock = jest.spyOn(cache, "restoreCache");
-    const processExitMock = jest.spyOn(process, "exit").mockImplementation();
+test("restore with save-always set", async () => {
+    jest.spyOn(actionUtils, "isGhes").mockImplementation(() => true);
+    const path = "node_modules";
+    const key = "node-test";
+    testUtils.setInputs({
+        path: path,
+        key,
+        saveAlways: true
+    });
 
-    // call restoreImpl with `earlyExit` set to true
-    await restoreImpl(new StateProvider(), true);
+    const setCacheHitOutputMock = jest.spyOn(core, "setOutput");
+    const restoreCacheMock = jest
+        .spyOn(cache, "restoreCache")
+        .mockImplementationOnce(() => {
+            return Promise.resolve(undefined);
+        });
 
-    expect(restoreCacheMock).toHaveBeenCalledTimes(0);
-    expect(failedMock).toHaveBeenCalledWith(
-        "Input required and not supplied: key"
+    await restoreImpl(new StateProvider());
+
+    expect(restoreCacheMock).toHaveBeenCalledTimes(1);
+    expect(restoreCacheMock).toHaveBeenCalledWith(
+        [path],
+        key,
+        [],
+        {
+            lookupOnly: false
+        },
+        false
     );
-    expect(processExitMock).toHaveBeenCalledWith(1);
+
+    expect(setCacheHitOutputMock).toHaveBeenCalledTimes(1);
+    expect(setCacheHitOutputMock).toHaveBeenCalledWith(
+        "save-always-d18d746b9",
+        "true"
+    );
 });
