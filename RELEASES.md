@@ -1,6 +1,10 @@
 # Releases
 
-### 3.0.0
+### 4.0.2
+
+- Fixed restore `fail-on-cache-miss` not working.
+
+### 4.0.1
 
 - Updated minimum runner version support from node 12 -> node 16
 
