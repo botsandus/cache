@@ -93702,13 +93702,15 @@ var Inputs;
     Inputs["UploadChunkSize"] = "upload-chunk-size";
     Inputs["EnableCrossOsArchive"] = "enableCrossOsArchive";
     Inputs["FailOnCacheMiss"] = "fail-on-cache-miss";
-    Inputs["LookupOnly"] = "lookup-only"; // Input for cache, restore action
+    Inputs["LookupOnly"] = "lookup-only";
+    Inputs["SaveAlways"] = "save-always"; // Input for cache action
 })(Inputs = exports.Inputs || (exports.Inputs = {}));
 var Outputs;
 (function (Outputs) {
     Outputs["CacheHit"] = "cache-hit";
     Outputs["CachePrimaryKey"] = "cache-primary-key";
-    Outputs["CacheMatchedKey"] = "cache-matched-key"; // Output from restore action
+    Outputs["CacheMatchedKey"] = "cache-matched-key";
+    Outputs["SaveAlways"] = "save-always-d18d746b9"; // Output from cache action, with unique suffix for detection in post-if
 })(Outputs = exports.Outputs || (exports.Outputs = {}));
 var State;
 (function (State) {
@@ -94466,6 +94468,7 @@ const custom = __importStar(__nccwpck_require__(1082));
 const canSaveToS3 = process.env["RUNS_ON_S3_BUCKET_CACHE"] !== undefined;
 function restoreImpl(stateProvider, earlyExit) {
     return __awaiter(this, void 0, void 0, function* () {
+        core.setOutput(constants_1.Outputs.SaveAlways, core.getInput(constants_1.Inputs.SaveAlways) || "false");
         try {
             if (!utils.isCacheFeatureAvailable()) {
                 core.setOutput(constants_1.Outputs.CacheHit, "false");
